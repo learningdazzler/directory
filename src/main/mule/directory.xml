@@ -1,4 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></mule>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:google-drive="http://www.mulesoft.org/schema/mule/google-drive"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/google-drive http://www.mulesoft.org/schema/mule/google-drive/current/mule-google-drive.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3b37ed0a-c23d-4c39-ba8d-e6489f305f87" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="b692d0e8-011c-478d-8826-ff330798f7fe" />
+	<flow name="copy-directoryFlow" doc:id="0e2a3c3d-f27c-47ee-8b36-aa0f57a47d24" >
+		<http:listener doc:name="Listener" doc:id="6896d7db-e477-4db1-8a86-f56fe6baa6fe" config-ref="HTTP_Listener_config" path="file/copy"/>
+		<file:copy doc:name="Copy" doc:id="9a744046-df4c-4901-8a07-85c6bb4fdb7d" config-ref="File_Config" sourcePath="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\input" targetPath="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\output"/>
+		<ee:transform doc:name="Transform Message" doc:id="3a5a97a0-aaff-49df-990a-4f94f066f8c0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="3c3b32e1-760a-4e42-948a-8f288f73e1f9" message="copy response: #[payload]"/>
+	</flow>
+	<flow name="create-directoryFlow" doc:id="10df0600-f85c-4da5-a626-7f9f4d80cdd9" >
+		<http:listener doc:name="Listener" doc:id="91b8e87a-b91d-427d-a9cd-8cb8931304b6" config-ref="HTTP_Listener_config" path="file/createdirectory" />
+		<file:create-directory doc:name="Create directory" doc:id="9fd94c6f-3e37-4441-a117-c65554b806f9" config-ref="File_Config" directoryPath="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\output\dummy\create.txt"/>
+		<ee:transform doc:name="Transform Message" doc:id="bf516a67-aba5-4d8f-9d6f-c36ce1a3a91f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="7fab8aa5-c153-41e0-9062-9895fbc7a042" message="create response: #[payload]"/>
+	</flow>
+	<flow name="delete-directoryFlow" doc:id="701beebe-d751-491f-bcc6-d1718b5c0d33" >
+		<http:listener doc:name="Listener" doc:id="26975610-f62d-43c7-9571-27364d48b2d1" config-ref="HTTP_Listener_config" path="file/delete" />
+		<file:delete doc:name="Delete" doc:id="70ff9c1e-a047-4f36-a298-0dbf9dc7b69a" config-ref="File_Config" path="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\output\input\subinput"/>
+		<ee:transform doc:name="Transform Message" doc:id="395459f0-3661-4e35-bb64-985c7a8f9893" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="89ca0076-6414-41d6-aec1-dea8c1859292" message='delete response": #[payload]'/>
+	</flow>
+	<flow name="list-directoryFlow" doc:id="22f39ac5-37f2-4926-8e5e-cf099703c0eb" >
+		<http:listener doc:name="Listener" doc:id="c56a0123-a042-4923-aee6-78ba8a52f19b" config-ref="HTTP_Listener_config" path="file/list" />
+		<file:list doc:name="List" doc:id="7c53bbcd-f466-4e83-a0e7-4244f7cab62f" config-ref="File_Config" directoryPath="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\input"/>
+		<ee:transform doc:name="Transform Message" doc:id="bcf80ba2-6449-43fd-9037-bb2129ae1f2b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0282105a-80b0-4de4-9c8c-ccad29af9881" message="list response: #[payload]"/>
+		<ee:transform doc:name="Just list of files and directories" doc:id="749f5251-d2bc-4337-beac-3897e241189c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.attributes.name]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Just list of files and directories" doc:id="a7b77acd-0a50-4aed-839d-5379262c7e01" message="list of files and directories: #[payload]"/>
+	</flow>
+	<flow name="move-directoryFlow" doc:id="f0352543-1f76-40c3-b050-4aaf0706aebb" >
+		<http:listener doc:name="Listener" doc:id="b8483713-c613-4e66-a6b6-b02aa916cc3a" config-ref="HTTP_Listener_config" path="file/move" />
+		<file:move doc:name="Move" doc:id="7ff2aaa0-7abd-4f87-9022-1a6c2c685d33" sourcePath="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\input" targetPath="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\output" config-ref="File_Config"/>
+	</flow>
+</mule>
