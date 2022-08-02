@@ -75,4 +75,42 @@ payload.attributes.name]]></ee:set-payload>
 		<http:listener doc:name="Listener" doc:id="b8483713-c613-4e66-a6b6-b02aa916cc3a" config-ref="HTTP_Listener_config" path="file/move" />
 		<file:move doc:name="Move" doc:id="7ff2aaa0-7abd-4f87-9022-1a6c2c685d33" sourcePath="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\input" targetPath="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\output" config-ref="File_Config"/>
 	</flow>
+	<flow name="read-directoryFlow" doc:id="4f3a5467-ea49-4f7a-91f8-e0e21aa477c9" >
+		<http:listener doc:name="Listener" doc:id="3924af6d-7ba2-4d26-b899-a210036c0cfa" config-ref="HTTP_Listener_config" path="file/read" />
+		<file:read doc:name="Read" doc:id="84790bc4-580f-4c3d-b6eb-c7a3cf806060" path="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\input\a.txt"/>
+	</flow>
+	<flow name="rename-directoryFlow" doc:id="a55ce335-afc2-432b-8a12-d3cc244f8be8" >
+		<http:listener doc:name="Listener" doc:id="ecfb860e-3c6f-4f42-b942-64eebcfe0f40" config-ref="HTTP_Listener_config" path="file/rename" />
+		<file:rename doc:name="Rename" doc:id="414f9c66-c245-46ce-84cd-b181f07f05b7" path="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\input" to="new"/>
+	</flow>
+	<flow name="write-directoryFlow" doc:id="5a40d8c4-c32a-452d-88dd-1a26ed339321" >
+		<http:listener doc:name="Listener" doc:id="0414ac85-47e1-46e6-8b8a-f482e1e28664" config-ref="HTTP_Listener_config" path="file/write"/>
+		<ee:transform doc:name="Transform Message" doc:id="d765772f-6534-415c-864f-8388725b4cee" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"a":"1"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write" doc:id="8b55789d-ab41-4459-8bb6-a0387b64affd" path="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\input\a.txt"/>
+	</flow>
+	<flow name="directoryFlow" doc:id="30691350-58ce-4ec4-bf44-4e33bd78d985" >
+		<file:listener doc:name="On New or Updated File" doc:id="4234b89c-48a1-4c6f-8510-6eb79fb9ae64" directory="C:\Users\rahul\OneDrive\Desktop\Books and Tutorials\MuleSoft Books and Tutorials\Practicals\directory\input" watermarkMode="MODIFIED_TIMESTAMP">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</file:listener>
+		<ee:transform doc:name="Transform Message" doc:id="c09bfba5-c906-4631-b408-7dbe4a0c0ee5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="33bfc55a-e0d9-4358-9184-9f6718bc7357" message="final response: #[payload]"/>
+	</flow>
 </mule>
